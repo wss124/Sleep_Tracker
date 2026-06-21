@@ -12,7 +12,7 @@ class RegistroSono extends Table {
 
 @DriftDatabase(tables: [RegistroSono])
 class AppDatabase extends _$AppDatabase {
-  AppDatabase() : super(driftDatabase(name: 'app_db'));
+  AppDatabase() : super(driftDatabase(name: 'sleep_tracker'));
 
   @override
   int get schemaVersion => 1;

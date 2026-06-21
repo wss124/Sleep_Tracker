@@ -1,4 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:sleeptracker/bloc/sono_bloc.dart';
+import 'package:sleeptracker/bloc/sono_event.dart';
+import 'package:sleeptracker/dao/sono_dao.dart';
+import 'package:sleeptracker/data/database.dart';
 import 'package:sleeptracker/ui/home_page.dart';
 
 void main() {
@@ -10,6 +15,15 @@ class MyLayout extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(home: HomePage());
+    final database = AppDatabase();
+    final sonoDao = SonoDao(database);
+
+    return BlocProvider(
+      create: (_) => SonoBloc(sonoDao)..add(CarregarRegistros()),
+      child: const MaterialApp(
+        debugShowCheckedModeBanner: false,
+        home: HomePage(),
+      ),
+    );
   }
 }
