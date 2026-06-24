@@ -15,7 +15,7 @@ class MyTela extends StatelessWidget {
         leading: Icon(Icons.arrow_back_ios, color: Colors.black),
         title: Center(
           child: Text(
-            'ANALISYS',
+            'ANÁLISE',
             style: TextStyle(
               color: Colors.black,
               fontSize: 14,
@@ -33,16 +33,16 @@ class MyTela extends StatelessWidget {
       ),
       body: Column(
         children: [
-          CardStages(titulo: 'SLEEP STAGES', subtitulo: 'Mon, Mar 28'),
-          CardWeekly(titulo: 'WEEKLY SLEEP', subtitulo: 'Avg 7h 14m'),
+          CardStages(titulo: 'FASES DO SONO', subtitulo: 'Mon, Mar 28'),
+          CardWeekly(titulo: 'SONO SEMANAL', subtitulo: 'Avg 7h 14m'),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 14.0),
             child: Row(
               children: [
                 Expanded(
                   child: CardPerformance(
-                    titulo: 'EFFICIENCY',
-                    subtitulo: 'Last night',
+                    titulo: 'EFICIÊNCIA',
+                    subtitulo: 'Noite anterior',
                     valor: '91%',
                     destaque: true,
                     icone: Icons.trending_up,
@@ -52,7 +52,7 @@ class MyTela extends StatelessWidget {
                 Expanded(
                   child: CardPerformance(
                     titulo: 'WAKE TIME',
-                    subtitulo: 'Consistency',
+                    subtitulo: 'Consistência',
                     valor: '06:14',
                     destaque: false,
                     icone: Icons.access_time,
@@ -67,8 +67,8 @@ class MyTela extends StatelessWidget {
               children: [
                 Expanded(
                   child: CardPerformance(
-                    titulo: 'TIME TO SLEEP',
-                    subtitulo: 'Onset latency',
+                    titulo: 'HORA DE DORMIR',
+                    subtitulo: 'Latência de início',
                     valor: '12 min',
                     destaque: false,
                     icone: Icons.nightlight_round,
@@ -77,8 +77,8 @@ class MyTela extends StatelessWidget {
                 Padding(padding: EdgeInsets.only(left: 8)),
                 Expanded(
                   child: CardPerformance(
-                    titulo: 'BLOOD O₂',
-                    subtitulo: 'Avg overnight',
+                    titulo: 'O₂ no sangue',
+                    subtitulo: 'Média por noite',
                     valor: '97%',
                     destaque: false,
                     icone: Icons.water_drop,
@@ -99,7 +99,7 @@ class MyTela extends StatelessWidget {
         items: [
           BottomNavigationBarItem(
             icon: Icon(Icons.home_outlined),
-            label: 'HOME',
+            label: 'INICIO',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.show_chart),
@@ -107,11 +107,11 @@ class MyTela extends StatelessWidget {
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.alarm_outlined),
-            label: 'ALARM',
+            label: 'ALARME',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.person_outlined),
-            label: 'PROFILE',
+            label: 'PERFIL',
           ),
         ],
       ),

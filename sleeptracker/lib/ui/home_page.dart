@@ -1,77 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sleeptracker/bloc/sono_bloc.dart';
-import 'package:sleeptracker/bloc/sono_event.dart';
 import 'package:sleeptracker/bloc/sono_state.dart';
+import 'package:sleeptracker/ui/widgets/add_sleep_dialog.dart';
+import 'package:sleeptracker/ui/widgets/card_home.dart';
+import 'package:sleeptracker/ui/widgets/circular_graphic.dart';
+import 'package:sleeptracker/ui/widgets/sleep_history.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
-
-  // ── Formulário de criação ──────────────────────────────
-  void _mostrarDialogo(BuildContext context) {
-    final dataController = TextEditingController();
-    final horasController = TextEditingController();
-    final minutosController = TextEditingController();
-
-    showDialog(
-      context: context,
-      builder:
-          (ctx) => AlertDialog(
-            title: const Text('Novo Registro de Sono'),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextField(
-                  controller: dataController,
-                  decoration: const InputDecoration(
-                    labelText: 'Data (ex: Mon, Mar 28)',
-                  ),
-                ),
-                const SizedBox(height: 12),
-                TextField(
-                  controller: horasController,
-                  keyboardType: TextInputType.number,
-                  decoration: const InputDecoration(
-                    labelText: 'Horas dormidas',
-                  ),
-                ),
-                const SizedBox(height: 12),
-                TextField(
-                  controller: minutosController,
-                  keyboardType: TextInputType.number,
-                  decoration: const InputDecoration(labelText: 'Minutos'),
-                ),
-              ],
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(ctx),
-                child: const Text('Cancelar'),
-              ),
-              TextButton(
-                onPressed: () {
-                  final data = dataController.text.trim();
-                  final horas = int.tryParse(horasController.text.trim());
-                  final minutos = int.tryParse(minutosController.text.trim());
-
-                  if (data.isEmpty || horas == null || minutos == null) return;
-
-                  context.read<SonoBloc>().add(
-                    AdicionarRegistro(
-                      data: data,
-                      horas: horas,
-                      minutos: minutos,
-                    ),
-                  );
-
-                  Navigator.pop(ctx);
-                },
-                child: const Text('Salvar'),
-              ),
-            ],
-          ),
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -85,7 +22,7 @@ class HomePage extends StatelessWidget {
           child: Icon(Icons.nightlight_round, color: Colors.black),
         ),
         title: Text(
-          'SLEEP',
+          'GERENCIADOR DE SONO',
           style: TextStyle(
             color: Colors.black,
             fontSize: 14,
@@ -97,7 +34,12 @@ class HomePage extends StatelessWidget {
           Padding(
             padding: EdgeInsets.only(right: 16),
             child: GestureDetector(
-              onTap: () => _mostrarDialogo(context),
+              onTap: () {
+                showDialog(
+                  context: context,
+                  builder: (_) => const AddSleepDialog(),
+                );
+              },
               child: Container(
                 width: 32,
                 height: 32,
@@ -182,7 +124,7 @@ class HomePage extends StatelessWidget {
                                   borderRadius: BorderRadius.circular(20),
                                 ),
                                 child: Text(
-                                  'LAST NIGHT',
+                                  'NOITE ANTERIOR',
                                   style: TextStyle(
                                     color: Colors.white,
                                     fontSize: 10,
@@ -206,13 +148,10 @@ class HomePage extends StatelessWidget {
                                 ),
                               ),
                               SizedBox(height: 8),
-                              _bullet('85 Sleep Score'),
-                              _bullet('3x Wake ups'),
-                              _bullet('91% Efficiency'),
                             ],
                           ),
                         ),
-                        _graficCircular(),
+                        const CircularGraphic(),
                       ],
                     ),
                   );
@@ -226,8 +165,8 @@ class HomePage extends StatelessWidget {
                 children: [
                   Expanded(
                     child: CardHome(
-                      titulo: 'DEEP SLEEP',
-                      subtitulo: 'Mon',
+                      titulo: 'SONO PROFUNDO',
+                      subtitulo: 'Seg',
                       valor: '1h 42m',
                       icone: Icons.nightlight_round,
                       destaque: true,
@@ -236,8 +175,8 @@ class HomePage extends StatelessWidget {
                   SizedBox(width: 12),
                   Expanded(
                     child: CardHome(
-                      titulo: 'HEART RATE',
-                      subtitulo: 'Resting',
+                      titulo: 'FREQUÊNCIA CARDÍACA',
+                      subtitulo: 'Descansando',
                       valor: '58 BPM',
                       icone: Icons.favorite,
                     ),
@@ -251,8 +190,8 @@ class HomePage extends StatelessWidget {
                 children: [
                   Expanded(
                     child: CardHome(
-                      titulo: 'SLEEP SCORE',
-                      subtitulo: 'This week',
+                      titulo: 'PONTUAÇÃO DE SONO',
+                      subtitulo: 'Essa semana',
                       valor: '85',
                       icone: Icons.access_time,
                     ),
@@ -261,7 +200,7 @@ class HomePage extends StatelessWidget {
                   Expanded(
                     child: CardHome(
                       titulo: 'HRV',
-                      subtitulo: 'Mon',
+                      subtitulo: 'Seg',
                       valor: '42 ms',
                       icone: Icons.show_chart,
                     ),
@@ -269,74 +208,7 @@ class HomePage extends StatelessWidget {
                 ],
               ),
             ),
-
-            // ── Lista de histórico ──────────────────────────
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'Histórico',
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                  ),
-                  const SizedBox(height: 8),
-                  BlocBuilder<SonoBloc, SonoState>(
-                    builder: (context, state) {
-                      if (state is! SonoCarregado) {
-                        return const SizedBox();
-                      }
-                      if (state.registros.isEmpty) {
-                        return const Text(
-                          'Nenhum registro cadastrado ainda.',
-                          style: TextStyle(color: Colors.grey),
-                        );
-                      }
-                      return ListView.builder(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        itemCount: state.registros.length,
-                        itemBuilder: (context, index) {
-                          final registro = state.registros[index];
-                          return Container(
-                            margin: const EdgeInsets.only(bottom: 8),
-                            padding: const EdgeInsets.all(12),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      registro.data,
-                                      style: const TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 14,
-                                      ),
-                                    ),
-                                    Text(
-                                      '${registro.horas}h ${registro.minutos}m de sono',
-                                      style: TextStyle(
-                                        color: Colors.grey.shade600,
-                                        fontSize: 12,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          );
-                        },
-                      );
-                    },
-                  ),
-                ],
-              ),
-            ),
+            const SleepHistory(),
           ],
         ),
       ),
@@ -349,7 +221,7 @@ class HomePage extends StatelessWidget {
         items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.home_outlined),
-            label: 'HOME',
+            label: 'INICIO',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.show_chart),
@@ -357,151 +229,14 @@ class HomePage extends StatelessWidget {
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.alarm_outlined),
-            label: 'ALARM',
+            label: 'ALARME',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.person_outlined),
-            label: 'PROFILE',
+            label: 'PERFIL',
           ),
         ],
       ),
     );
   }
-}
-
-class CardHome extends StatelessWidget {
-  final String titulo;
-  final String subtitulo;
-  final String valor;
-  final IconData icone;
-  final bool destaque;
-
-  const CardHome({
-    super.key,
-    required this.titulo,
-    required this.subtitulo,
-    required this.valor,
-    required this.icone,
-    this.destaque = false,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: destaque ? Color(0xFF2B5BFF) : Colors.white,
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    titulo,
-                    style: TextStyle(
-                      fontSize: 10,
-                      fontWeight: FontWeight.bold,
-                      color: destaque ? Colors.white70 : Colors.black54,
-                    ),
-                  ),
-                  Text(
-                    subtitulo,
-                    style: TextStyle(
-                      fontSize: 9,
-                      color: destaque ? Colors.white60 : Colors.grey,
-                    ),
-                  ),
-                ],
-              ),
-              Icon(
-                icone,
-                size: 14,
-                color: destaque ? Colors.white60 : Color(0xFF2B5BFF),
-              ),
-            ],
-          ),
-          SizedBox(height: 8),
-          Text(
-            valor,
-            style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-              color: destaque ? Colors.white : Colors.black,
-            ),
-          ),
-          SizedBox(height: 8),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: List.generate(6, (i) {
-              final alturas = [8.0, 14.0, 10.0, 18.0, 12.0, 16.0];
-              return Container(
-                width: 5,
-                height: alturas[i],
-                margin: EdgeInsets.only(right: 3),
-                decoration: BoxDecoration(
-                  color:
-                      destaque
-                          ? Colors.white38
-                          : Color(0xFF2B5BFF).withOpacity(0.4),
-                  borderRadius: BorderRadius.circular(3),
-                ),
-              );
-            }),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-Widget _bullet(String texto) {
-  return Row(
-    children: [
-      Container(
-        width: 8,
-        height: 8,
-        margin: EdgeInsets.only(right: 6, bottom: 4),
-        decoration: BoxDecoration(
-          color: Color(0xFF2B5BFF),
-          shape: BoxShape.circle,
-        ),
-      ),
-      Text(texto, style: TextStyle(fontSize: 12, color: Colors.black54)),
-    ],
-  );
-}
-
-Widget _graficCircular() {
-  return SizedBox(
-    width: 80,
-    height: 80,
-    child: Stack(
-      children: [
-        CircularProgressIndicator(
-          value: 0.75,
-          strokeWidth: 8,
-          backgroundColor: Colors.blue.shade100,
-          valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF2B5BFF)),
-        ),
-        Center(
-          child: SizedBox(
-            width: 55,
-            height: 55,
-            child: CircularProgressIndicator(
-              value: 0.55,
-              strokeWidth: 6,
-              backgroundColor: Colors.blue.shade50,
-              valueColor: AlwaysStoppedAnimation<Color>(Colors.blue.shade300),
-            ),
-          ),
-        ),
-      ],
-    ),
-  );
 }
