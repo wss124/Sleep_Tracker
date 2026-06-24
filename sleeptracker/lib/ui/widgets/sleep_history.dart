@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sleeptracker/bloc/sono_bloc.dart';
 import 'package:sleeptracker/bloc/sono_state.dart';
 import 'package:sleeptracker/bloc/sono_event.dart';
+import 'package:sleeptracker/ui/widgets/edit_sleep_dialog.dart';
 
 class SleepHistory extends StatelessWidget {
   const SleepHistory({super.key});
@@ -68,6 +69,22 @@ class SleepHistory extends StatelessWidget {
                               ),
                             ),
                           ],
+                        ),
+                        IconButton(
+                          icon: const Icon(
+                            Icons.edit_outlined,
+                            color: Color(0xFF2B5BFF),
+                          ),
+                          onPressed: () {
+                            showDialog(
+                              context: context,
+                              builder:
+                                  (_) => BlocProvider.value(
+                                    value: context.read<SonoBloc>(),
+                                    child: EditSleepDialog(registro: registro),
+                                  ),
+                            );
+                          },
                         ),
                         IconButton(
                           icon: const Icon(

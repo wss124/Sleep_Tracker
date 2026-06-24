@@ -3,8 +3,8 @@ import 'package:sleeptracker/cards/card_performance.dart';
 import 'package:sleeptracker/cards/card_stages.dart';
 import 'package:sleeptracker/cards/card_weekly.dart';
 
-class MyTela extends StatelessWidget {
-  const MyTela({super.key});
+class TrendsPage extends StatelessWidget {
+  const TrendsPage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -86,32 +86,6 @@ class MyTela extends StatelessWidget {
                 ),
               ],
             ),
-          ),
-        ],
-      ),
-
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: 1,
-        selectedItemColor: Color(0xFF2B5BFF),
-        unselectedItemColor: Colors.grey,
-        backgroundColor: Colors.white,
-        type: BottomNavigationBarType.fixed,
-        items: [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home_outlined),
-            label: 'INICIO',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.show_chart),
-            label: 'TRENDS',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.alarm_outlined),
-            label: 'ALARME',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person_outlined),
-            label: 'PERFIL',
           ),
         ],
       ),

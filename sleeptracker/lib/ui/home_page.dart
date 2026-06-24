@@ -1,7 +1,9 @@
+import 'package:drift_db_viewer/drift_db_viewer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:sleeptracker/bloc/sono_bloc.dart';
 import 'package:sleeptracker/bloc/sono_state.dart';
+import 'package:sleeptracker/main.dart';
 import 'package:sleeptracker/ui/widgets/add_sleep_dialog.dart';
 import 'package:sleeptracker/ui/widgets/card_home.dart';
 import 'package:sleeptracker/ui/widgets/circular_graphic.dart';
@@ -32,6 +34,17 @@ class HomePage extends StatelessWidget {
         centerTitle: true,
         actions: [
           Padding(
+            padding: const EdgeInsets.only(right: 4),
+            child: IconButton(
+              icon: const Icon(Icons.storage_outlined, color: Colors.black),
+              onPressed: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(builder: (_) => DriftDbViewer(appDatabase)),
+                );
+              },
+            ),
+          ),
+          Padding(
             padding: EdgeInsets.only(right: 16),
             child: GestureDetector(
               onTap: () {
@@ -53,11 +66,10 @@ class HomePage extends StatelessWidget {
           ),
         ],
       ),
-      // ── SingleChildScrollView para caber a lista de histórico ──
+
       body: SingleChildScrollView(
         child: Column(
           children: [
-            // ── Card LAST NIGHT ──
             Padding(
               padding: const EdgeInsets.all(16),
               child: BlocBuilder<SonoBloc, SonoState>(
@@ -89,12 +101,29 @@ class HomePage extends StatelessWidget {
                     );
                   }
 
+                  DateTime parseData(String data) {
+                    final partes = data.split('/');
+                    return DateTime(
+                      int.parse(partes[2]),
+                      int.parse(partes[1]),
+                      int.parse(partes[0]),
+                    );
+                  }
+
                   String horas = '--';
                   String minutos = '--';
                   String dataRegistro = 'Nenhum registro ainda';
 
                   if (state is SonoCarregado && state.registros.isNotEmpty) {
-                    final ultimo = state.registros.last;
+                    final registrosOrdenados = List.of(state.registros);
+
+                    registrosOrdenados.sort((a, b) {
+                      final dataA = parseData(a.data);
+                      final dataB = parseData(b.data);
+                      return dataB.compareTo(dataA);
+                    });
+
+                    final ultimo = registrosOrdenados.first;
                     horas = '${ultimo.horas}';
                     minutos = '${ultimo.minutos}';
                     dataRegistro = ultimo.data;
@@ -211,31 +240,6 @@ class HomePage extends StatelessWidget {
             const SleepHistory(),
           ],
         ),
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: 0,
-        selectedItemColor: Color(0xFF2B5BFF),
-        unselectedItemColor: Colors.grey,
-        backgroundColor: Colors.white,
-        type: BottomNavigationBarType.fixed,
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home_outlined),
-            label: 'INICIO',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.show_chart),
-            label: 'TRENDS',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.alarm_outlined),
-            label: 'ALARME',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person_outlined),
-            label: 'PERFIL',
-          ),
-        ],
       ),
     );
   }
