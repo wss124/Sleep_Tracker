@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:sleeptracker/cards/card_performance.dart';
-import 'package:sleeptracker/cards/card_stages.dart';
-import 'package:sleeptracker/cards/card_weekly.dart';
+import 'package:sleeptracker/ui/widgets/card_performance.dart';
+import 'package:sleeptracker/ui/widgets/card_stages.dart';
+import 'package:sleeptracker/ui/widgets/card_weekly.dart';
 
 class TrendsPage extends StatelessWidget {
   const TrendsPage({super.key});

@@ -1,5 +1,6 @@
+import 'package:drift/drift.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:sleeptracker/dao/sono_dao.dart';
+import 'package:sleeptracker/data/dao/sono_dao.dart';
 import 'package:sleeptracker/data/database.dart';
 import 'sono_event.dart';
 import 'sono_state.dart';
@@ -37,6 +38,8 @@ class SonoBloc extends Bloc<SonoEvent, SonoState> {
           data: event.data,
           horas: event.horas,
           minutos: event.minutos,
+          // ✅ ADICIONAR
+          categoriaId: Value(event.categoriaId),
         ),
       );
       final registros = await _dao.buscarTodos();
@@ -55,6 +58,7 @@ class SonoBloc extends Bloc<SonoEvent, SonoState> {
         data: event.novaData,
         horas: event.novasHoras,
         minutos: event.novosMinutos,
+        categoriaId: Value(event.categoriaId),
       );
       await _dao.atualizar(atualizado);
       final registros = await _dao.buscarTodos();

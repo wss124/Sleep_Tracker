@@ -8,11 +8,13 @@ class AdicionarRegistro extends SonoEvent {
   final String data;
   final int horas;
   final int minutos;
+  final int? categoriaId;
 
   AdicionarRegistro({
     required this.data,
     required this.horas,
     required this.minutos,
+    this.categoriaId,
   });
 }
 
@@ -21,12 +23,14 @@ class AtualizarRegistro extends SonoEvent {
   final String novaData;
   final int novasHoras;
   final int novosMinutos;
+  final int? categoriaId;
 
   AtualizarRegistro({
     required this.registro,
     required this.novaData,
     required this.novasHoras,
     required this.novosMinutos,
+    this.categoriaId,
   });
 }
 

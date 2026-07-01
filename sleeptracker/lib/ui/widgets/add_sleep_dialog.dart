@@ -1,37 +1,117 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:sleeptracker/bloc/sono_bloc.dart';
-import 'package:sleeptracker/bloc/sono_event.dart';
+import 'package:sleeptracker/bloc/categoria/categoria_bloc.dart';
+import 'package:sleeptracker/bloc/categoria/categoria_state.dart';
+import 'package:sleeptracker/bloc/sono/sono_bloc.dart';
+import 'package:sleeptracker/bloc/sono/sono_event.dart';
+import 'package:sleeptracker/data/database.dart';
 
-class AddSleepDialog extends StatelessWidget {
+class AddSleepDialog extends StatefulWidget {
   const AddSleepDialog({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final dataController = TextEditingController();
-    final horasController = TextEditingController();
-    final minutosController = TextEditingController();
+  State<AddSleepDialog> createState() => _AddSleepDialogState();
+}
 
+class _AddSleepDialogState extends State<AddSleepDialog> {
+  final dataController = TextEditingController();
+  final horasController = TextEditingController();
+  final minutosController = TextEditingController();
+  CategoriaSonoData? categoriaSelecionada;
+
+  void _salvar() {
+    final data = dataController.text.trim();
+    final horas = int.tryParse(horasController.text.trim());
+    final minutos = int.tryParse(minutosController.text.trim());
+
+    if (data.length < 10 || horas == null || minutos == null) return;
+    if (horas < 0 || horas > 16) return;
+    if (minutos < 0 || minutos > 59) return;
+
+    DateTime? dataConvertida;
+    try {
+      final partes = data.split('/');
+      if (partes.length != 3) return;
+      dataConvertida = DateTime(
+        int.parse(partes[2]),
+        int.parse(partes[1]),
+        int.parse(partes[0]),
+      );
+    } catch (e) {
+      return;
+    }
+
+    final hoje = DateTime.now();
+    if (dataConvertida.isAfter(DateTime(hoje.year, hoje.month, hoje.day))) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Não é permitido registrar data futura')),
+      );
+      return;
+    }
+
+    context.read<SonoBloc>().add(
+      AdicionarRegistro(
+        data: data,
+        horas: horas,
+        minutos: minutos,
+        categoriaId: categoriaSelecionada?.id,
+      ),
+    );
+
+    Navigator.pop(context);
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return AlertDialog(
-      title: const Text('NOVO REGISTRO'),
+      title: const Text('Novo Registro'),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           TextField(
             controller: dataController,
-            decoration: const InputDecoration(labelText: 'DATA'),
+            keyboardType: TextInputType.number,
+            decoration: const InputDecoration(
+              labelText: 'Data',
+              hintText: 'DD/MM/AAAA',
+            ),
           ),
           const SizedBox(height: 12),
           TextField(
             controller: horasController,
             keyboardType: TextInputType.number,
-            decoration: const InputDecoration(labelText: 'HORAS'),
+            decoration: const InputDecoration(labelText: 'Horas (0-16)'),
           ),
           const SizedBox(height: 12),
           TextField(
             controller: minutosController,
             keyboardType: TextInputType.number,
-            decoration: const InputDecoration(labelText: 'MINUTOS'),
+            decoration: const InputDecoration(labelText: 'Minutos (0-59)'),
+          ),
+          const SizedBox(height: 12),
+          BlocBuilder<CategoriaBloc, CategoriaState>(
+            builder: (context, state) {
+              final categorias =
+                  state is CategoriaCarregada
+                      ? state.categorias
+                      : <CategoriaSonoData>[];
+
+              return DropdownButtonFormField<CategoriaSonoData?>(
+                value: categoriaSelecionada,
+                decoration: const InputDecoration(labelText: 'Categoria'),
+                items: [
+                  const DropdownMenuItem(
+                    value: null,
+                    child: Text('Sem categoria'),
+                  ),
+                  ...categorias.map(
+                    (c) => DropdownMenuItem(value: c, child: Text(c.nome)),
+                  ),
+                ],
+                onChanged:
+                    (value) => setState(() => categoriaSelecionada = value),
+              );
+            },
           ),
         ],
       ),
@@ -40,63 +120,7 @@ class AddSleepDialog extends StatelessWidget {
           onPressed: () => Navigator.pop(context),
           child: const Text('Cancelar'),
         ),
-        TextButton(
-          onPressed: () {
-            final data = dataController.text.trim();
-            final horas = int.tryParse(horasController.text.trim());
-            final minutos = int.tryParse(minutosController.text.trim());
-
-            if (data.isEmpty || horas == null || minutos == null) return;
-            if (horas < 0 || horas > 16) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Horas devem estar entre 0 e 24')),
-              );
-              return;
-            }
-
-            if (minutos < 0 || minutos > 59) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Minutos devem estar entre 0 e 59'),
-                ),
-              );
-              return;
-            }
-            DateTime? dataConvertida;
-
-            try {
-              final partes = data.split('/');
-              if (partes.length != 3) return;
-
-              final dia = int.parse(partes[0]);
-              final mes = int.parse(partes[1]);
-              final ano = int.parse(partes[2]);
-
-              dataConvertida = DateTime(ano, mes, dia);
-            } catch (e) {
-              return;
-            }
-
-            final hoje = DateTime.now();
-            final hojeSemHora = DateTime(hoje.year, hoje.month, hoje.day);
-
-            if (dataConvertida.isAfter(hojeSemHora)) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Não é permitido registrar data futura'),
-                ),
-              );
-              return;
-            }
-
-            context.read<SonoBloc>().add(
-              AdicionarRegistro(data: data, horas: horas, minutos: minutos),
-            );
-
-            Navigator.pop(context);
-          },
-          child: const Text('Salvar'),
-        ),
+        ElevatedButton(onPressed: _salvar, child: const Text('Salvar')),
       ],
     );
   }

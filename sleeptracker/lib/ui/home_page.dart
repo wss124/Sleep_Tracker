@@ -1,13 +1,15 @@
 import 'package:drift_db_viewer/drift_db_viewer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:sleeptracker/bloc/sono_bloc.dart';
-import 'package:sleeptracker/bloc/sono_state.dart';
+import 'package:sleeptracker/bloc/categoria/categoria_bloc.dart';
+import 'package:sleeptracker/bloc/sono/sono_bloc.dart';
+import 'package:sleeptracker/bloc/sono/sono_state.dart';
 import 'package:sleeptracker/main.dart';
 import 'package:sleeptracker/ui/widgets/add_sleep_dialog.dart';
 import 'package:sleeptracker/ui/widgets/card_home.dart';
 import 'package:sleeptracker/ui/widgets/circular_graphic.dart';
 import 'package:sleeptracker/ui/widgets/sleep_history.dart';
+import 'package:sleeptracker/ui/widgets/categoria_dialog.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -24,7 +26,7 @@ class HomePage extends StatelessWidget {
           child: Icon(Icons.nightlight_round, color: Colors.black),
         ),
         title: Text(
-          'GERENCIADOR DE SONO',
+          'SONO',
           style: TextStyle(
             color: Colors.black,
             fontSize: 14,
@@ -33,6 +35,22 @@ class HomePage extends StatelessWidget {
         ),
         centerTitle: true,
         actions: [
+          Padding(
+            padding: const EdgeInsets.only(right: 4),
+            child: IconButton(
+              icon: const Icon(Icons.label_outline, color: Colors.black),
+              onPressed: () {
+                showDialog(
+                  context: context,
+                  builder:
+                      (_) => BlocProvider.value(
+                        value: context.read<CategoriaBloc>(),
+                        child: const CategoriaDialog(),
+                      ),
+                );
+              },
+            ),
+          ),
           Padding(
             padding: const EdgeInsets.only(right: 4),
             child: IconButton(
